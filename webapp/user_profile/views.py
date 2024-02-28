@@ -36,3 +36,12 @@ class UserProfileView(TemplateView, LoginRequiredMixin):
 
 class UserStatusView(TemplateView, LoginRequiredMixin):
     template_name = "user_profile/status.html"
+
+def home2(request):
+    return render(request, 'home2/home2.html')
+
+def index(request):
+    return render(request, 'index/index.html')
+
+def addetect(request):
+    return render(request, 'addetect/mod_AD_Detect.html')

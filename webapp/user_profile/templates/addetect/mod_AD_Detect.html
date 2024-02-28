@@ -1,0 +1,256 @@
+<html>
+<head>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body style="  background-image: url('https://aighospitals.com/wp-content/uploads/2018/08/Banner-Doctors.png');background-repeat: no-repeat;background-attachment: fixed; background-size: 100% 100%;">
+		<button><a href="{% url 'base' %}">Index</a></button>
+		<table>
+			<th>
+				<img id="imagePreview" style="height: 300px;" />
+				<br><br>
+				<input id="imageUpload" type="file" />
+			</th>
+			<th>
+				<p id="demo" style="padding-top: 15%;padding-left: 0%;padding-right: 35%;"></p>
+			</th>
+		</table>
+		
+		
+
+		<!-- <div>Teachable Machine Image Model with upload</div> -->
+		<div id="label-container"></div>
+		<canvas id="myChart" ></canvas>
+		<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+		<!-- /////////// -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.0.272/jspdf.debug.js"></script>
+
+		<script type="text/javascript">
+			// More API functions here:
+			// https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
+
+			// the link to your model provided by Teachable Machine export panel
+            const URL = "https://teachablemachine.withgoogle.com/models/aRqmmb3NU/";
+			
+
+			let model, labelContainer, maxPredictions;
+
+			// Load the image model 
+			async function init() {
+				const modelURL = URL + 'model.json';
+				const metadataURL = URL + 'metadata.json';
+
+				// load the model and metadata
+				model = await tmImage.load(modelURL, metadataURL);
+				maxPredictions = model.getTotalClasses();
+
+				labelContainer = document.getElementById('label-container');
+				for (let i = 0; i < maxPredictions; i++) {
+					// and class labels
+					labelContainer.appendChild(document.createElement('div'));
+				}
+			}
+
+			async function predict() {
+				// predict can take in an image, video or canvas html element
+				
+				var image = document.getElementById('imagePreview');
+				const prediction = await model.predict(image, false);
+				console.log(prediction)
+				for (let i = 0; i < maxPredictions; i++) {
+
+					if (prediction[i].probability >= '0.70'){
+
+						if(prediction[i].className == 'MildDemented'){
+							//alert("alert");
+							document.getElementById("demo").innerHTML = "At this stage, individuals may start to become socially withdrawn and show changes in personality and mood. \
+							Denial of symptoms as a defense mechanism is commonly seen in stage 4. Behaviors to look for include: \
+							Decreased knowledge of current and/or recent events Difficulty remembering things about one's personal history \
+							Decreased ability to handle finances, arrange travel plans, etc. Disorientation Difficulty recognizing faces and people";
+							
+
+							const ctx = document.getElementById('myChart').getContext('2d');
+							const myChart = new Chart(ctx, {
+							type: 'bar',
+							data: {
+								labels: ['MildDemented', 'ModerateDemented', 'NonDemented', 'VeryMildDemented'],
+								datasets: [{
+								label: 'ALZHEIMERS DETECTION',
+								data: [prediction[0].probability, prediction[1].probability, prediction[2].probability, prediction[3].probability],
+								backgroundColor: 'darkblue',
+								borderColor: 'yellow',
+								borderWidth: 1
+								}]
+							},
+							options: {
+								scales: {
+								y: {
+									beginAtZero: true
+								}
+								}
+							}
+							});
+						
+							myChart.options.plugins.title = {
+							display: true,
+							// text: 'Sales by Month'
+							};
+
+							let doc = new jsPDF('p','pt','a4');
+							doc.addHTML(document.body,function() {
+								doc.save('html.pdf');
+							});
+
+						}
+						else if(prediction[i].className == 'ModerateDemented'){
+							document.getElementById("demo").innerHTML = "During the moderate dementia stage of Alzheimer's disease, people grow more confused and forgetful and begin to need more help with daily activities and self-care.\
+								People with the moderate dementia stage of Alzheimer's disease may: Show increasingly poor judgment and deepening confusion. Individuals lose track of where they are, the day of the week or the season. They may confuse family members or close friends with one another or mistake strangers for family.\
+								They may wander, possibly in search of surroundings that feel more familiar. These difficulties make it unsafe to leave those in the moderate dementia stage on their own. \
+								Experience even greater memory loss. People may forget details of their personal history, such as their address or phone number, or where they attended school. They repeat favorite stories or make up stories to fill gaps in memory. \
+								Need help with some daily activities. Assistance may be required with choosing proper clothing for the occasion or the weather and with bathing, grooming, using the bathroom and other self-care. Some individuals occasionally lose control of their bladder or bowel movements. \
+								Undergo significant changes in personality and behavior. It's not unusual during the moderate dementia stage for people to develop unfounded suspicions — for example, to become convinced that friends, family or professional caregivers are stealing from them or that a spouse is having an affair. Others may see or hear things that aren't really there. \
+								Individuals often grow restless or agitated, especially late in the day. Some people may have outbursts of aggressive physical behavior.";
+								
+								
+								const ctx = document.getElementById('myChart').getContext('2d');
+								const myChart = new Chart(ctx, {
+								type: 'bar',
+								data: {
+									labels: ['MildDemented', 'ModerateDemented', 'NonDemented', 'VeryMildDemented'],
+									datasets: [{
+									label: 'ALZHEIMERS DETECTION',
+									data: [prediction[0].probability, prediction[1].probability, prediction[2].probability, prediction[3].probability],
+									backgroundColor: 'darkblue',
+									borderColor: 'yellow',
+									borderWidth: 1
+									}]
+								},
+								options: {
+									scales: {
+									y: {
+										beginAtZero: true
+									}
+									}
+								}
+								});
+							
+								myChart.options.plugins.title = {
+								display: true,
+								// text: 'Sales by Month'
+								};
+
+								let doc = new jsPDF('p','pt','a4');
+								doc.addHTML(document.body,function() {
+									doc.save('html.pdf');
+								});
+						}
+						else if(prediction[i].className == 'NonDemented'){
+							document.getElementById("demo").innerHTML = "Some individuals, here referred to as Non-Demented with Alzheimer's Neuropathology (NDAN), retain their cognitive function despite the presence of amyloid plaques and tau tangles typical of symptomatic Alzheimer's disease (AD). In NDAN, unlike AD, toxic amyloid-β oligomers do not localize to the postsynaptic densities (PSDs). Synaptic resistance to amyloid-β in NDAN may thus enable these individuals to remain cognitively intact despite the AD-like pathology. The mechanism(s) responsible for this resistance remains unresolved and understanding such protective biological processes could reveal novel targets for the development of effective treatments for AD. ";
+							
+							const ctx = document.getElementById('myChart').getContext('2d');
+							const myChart = new Chart(ctx, {
+							type: 'bar',
+							data: {
+								labels: ['MildDemented', 'ModerateDemented', 'NonDemented', 'VeryMildDemented'],
+								datasets: [{
+								label: 'ALZHEIMERS DETECTION',
+								data: [prediction[0].probability, prediction[1].probability, prediction[2].probability, prediction[3].probability],
+								backgroundColor: 'darkblue',
+								borderColor: 'yellow',
+								borderWidth: 1
+								}]
+							},
+							options: {
+								scales: {
+								y: {
+									beginAtZero: true
+								}
+								}
+							}
+							});
+						
+							myChart.options.plugins.title = {
+							display: true,
+							// text: 'Sales by Month'
+							};
+
+							let doc = new jsPDF('p','pt','a4');
+							doc.addHTML(document.body,function() {
+								doc.save('html.pdf');
+							});
+						}
+						else if(prediction[i].className == 'VeryMildDemented'){
+							document.getElementById("demo").innerHTML = "Alzheimer's disease (AD) is a prominent neurodegenerative disease that can cause memory loss and cognitive impairment. Accurate early diagnosis greatly reduces treatment costs and slows progression. Traditional detection methods are complex, expensive, and less accurate. In this study, an Alzheimer's phase detection method based on improved convolution neural network fine-tuning was proposed to diagnose the severity of Alzheimer's disease. The method was trained and tested on Alzheimer's Dataset (4 classes of Images), which classified the patient condition into four stages: MildDemented, VeryMildDemented, NonDemented, and ModerateDemeneted. ";
+							
+							const ctx = document.getElementById('myChart').getContext('2d');
+							const myChart = new Chart(ctx, {
+							type: 'bar',
+							data: {
+								labels: ['MildDemented', 'ModerateDemented', 'NonDemented', 'VeryMildDemented'],
+								datasets: [{
+								label: 'ALZHEIMERS DETECTION',
+								data: [prediction[0].probability, prediction[1].probability, prediction[2].probability, prediction[3].probability],
+								backgroundColor: 'darkblue',
+								borderColor: 'yellow',
+								borderWidth: 1
+								}]
+							},
+							options: {
+								scales: {
+								y: {
+									beginAtZero: true
+								}
+								}
+							}
+							});
+						
+							myChart.options.plugins.title = {
+							display: true,
+							// text: 'Sales by Month'
+							};
+
+							let doc = new jsPDF('p','pt','a4');
+							doc.addHTML(document.body,function() {
+								doc.save('html.pdf');
+							});
+						}
+						else{
+							document.getElementById("demo").innerHTML = "Input not Readable";
+
+						}
+						}
+					const classPrediction = prediction[i].className + ': ' + prediction[i].probability.toFixed(2);
+					labelContainer.childNodes[i].innerHTML = classPrediction;
+
+				}
+			}
+		
+		</script>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		<script type="text/javascript">
+			function readURL(input) {
+				if (input.files && input.files[0]) {
+					var reader = new FileReader();
+					reader.onload = function (e) {
+						$('#imagePreview').attr('src', e.target.result);
+						// $('#imagePreview').css('background-image', 'url(' + e.target.result + ')');
+						$('#imagePreview').hide();
+						$('#imagePreview').fadeIn(650);
+					};
+					reader.readAsDataURL(input.files[0]);
+					init().then(() => {
+						predict();
+					});
+				}
+			}
+			$('#imageUpload').change(function () {
+				readURL(this);
+			});
+			
+		  </script>
+	</body>
+</html>
+
